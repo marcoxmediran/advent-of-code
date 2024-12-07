@@ -13,22 +13,30 @@ void main() {
 
       LineSplitter ls = LineSplitter();
       List<String> lines = ls.convert(content);
+      int highest_length = GetHighestLength(lines);
+      List<List<List<int>>> operations = [];
+      for (int i = 0; i < highest_length; i++) {
+        operations.add(GeneratePermutations(i));
+      }
       for (String line in lines) {
         List<String> line_split = line.split(':');
         int result = int.parse(line_split[0]);
         List<int> terms =
             line_split[1].trim().split(' ').map(int.parse).toList();
-        List<List<int>> operations = GeneratePermutations(terms.length - 1);
-        for (var permutation in operations) {
+        for (var permutation in operations[terms.length - 1]) {
           int check_result = terms[0];
-          for (int i = 0; i < permutation.length; i++) {
+          for (int i = 0; i < terms.length - 1; i++) {
             int next_term = terms[i + 1];
             if (permutation[i] == 1) {
               check_result *= next_term;
             } else if (permutation[i] == 0) {
               check_result += next_term;
             } else {
-              check_result = int.parse(check_result.toString() + next_term.toString());
+              check_result =
+                  int.parse(check_result.toString() + next_term.toString());
+            }
+            if (check_result > result) {
+              break;
             }
           }
           if (check_result == result) {
@@ -59,4 +67,15 @@ List<List<int>> GeneratePermutations(int size) {
 
   _recursion([], 0);
   return results;
+}
+
+int GetHighestLength(List<String> lines) {
+  int highest = 0;
+  for (var line in lines) {
+    var split = line.split(' ');
+    if (split.length > highest) {
+      highest = split.length;
+    }
+  }
+  return highest;
 }
