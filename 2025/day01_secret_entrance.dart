@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 void main() {
@@ -7,8 +6,7 @@ void main() {
     var second_answer = 0;
 
     var dial = 50;
-    var ls = new LineSplitter();
-    var lines = ls.convert(content);
+    var lines = content.trim().split('\n');
 
     for (var line in lines) {
       var dir = line[0];
