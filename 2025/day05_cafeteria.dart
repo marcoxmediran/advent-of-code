@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 void main() async {
   final content = await File('input05_large.txt').readAsString();
@@ -6,48 +7,43 @@ void main() async {
   var firstAnswer = 0;
   var secondAnswer = 0;
 
-  var lines = content.trim().split('\n');
+  var lines = content.trim().split(RegExp(r'\r?\n\r?\n'));
 
-  var ranges = [...lines];
-  ranges.removeRange(ranges.indexOf(''), ranges.length);
+  var rawRanges = lines[0].split('\n');
+  var ranges = rawRanges.map((element) {
+    var s = element.split('-');
+    return [int.parse(s[0]), int.parse(s[1])];
+  }).toList();
 
-  var ingredients = [...lines];
-  ingredients.removeRange(0, ingredients.indexOf('') + 1);
+  var ingredients = lines[1].split('\n').map(int.parse).toList();
+
+  ranges.sort((a, b) => a[0].compareTo(b[0]));
+
+  List<List<int>> mergedRanges = [];
+  if (ranges.isNotEmpty) {
+    mergedRanges.add(ranges[0]);
+    for (int i = 1; i < ranges.length; i++) {
+      if (ranges[i][0] <= mergedRanges.last[1]) {
+        mergedRanges.last[1] = max(mergedRanges.last[1], ranges[i][1]);
+      } else {
+        mergedRanges.add(ranges[i]);
+      }
+    }
+  }
 
   for (var ingredient in ingredients) {
-    var a = int.parse(ingredient);
-    for (var range in ranges) {
-      var s = range.split('-');
-      var x = int.parse(s[0]);
-      var y = int.parse(s[1]);
-      if (a >= x && a <= y) {
+    for (var range in mergedRanges) {
+      if (range[0] > ingredient) break;
+
+      if (ingredient >= range[0] && ingredient <= range[1]) {
         firstAnswer++;
         break;
       }
     }
   }
 
-  var fresh = ranges.map((element) => element.split('-')).toList().map((list) {
-    return list.map((String value) => int.parse(value)).toList();
-  }).toList();
-  fresh.sort((a, b) => a[0].compareTo(b[0]));
-
-  var isDec = true;
-  while (true) {
-    isDec = true;
-    for (int i = 0; i < fresh.length - 1; i++) {
-      if (fresh[i][1] >= fresh[i + 1][0]) {
-        if (fresh[i][1] < fresh[i + 1][1]) fresh[i][1] = fresh[i + 1][1];
-        isDec = false;
-        fresh.removeAt(i + 1);
-      }
-    }
-
-    if (isDec) break;
-  }
-
-  for (int i = 0; i < fresh.length; i++) {
-    secondAnswer += (fresh[i][1] - fresh[i][0] + 1);
+  for (var range in mergedRanges) {
+    secondAnswer += (range[1] - range[0] + 1);
   }
 
   print('first answer: $firstAnswer');
