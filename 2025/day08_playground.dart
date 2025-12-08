@@ -28,7 +28,7 @@ void main() async {
   }
   edges.sort((a, b) => a.distance.compareTo(b.distance));
 
-  var maxConnections = 10;
+  var maxConnections = 1000;
   for (int i = 0; i < maxConnections; i++) {
     Edge edge = edges[i];
     dsu.union(edge.u, edge.v);
@@ -56,8 +56,6 @@ void main() async {
       if (distinctGroups == 1) {
         var boxA = lines[edge.u];
         var boxB = lines[edge.v];
-
-        print('(${edge.u},${edge.v}): $boxA, $boxB');
 
         secondAnswer = boxA[0] * boxB[0];
         break;
